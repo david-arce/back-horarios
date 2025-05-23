@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-# Tabla intermedia Disponibilidad
 class Disponibilidad(Base):
     __tablename__ = "disponibilidad"
 
@@ -17,6 +16,14 @@ class Disponibilidad(Base):
 
     docente = relationship("Docente", back_populates="disponibilidad")
     periodo = relationship("Periodo", back_populates="disponibilidad")
+
+# 1. Crear la tabla de asociación (intermedia) entre Docente y Asignatura
+docentes_asignaturas = Table(
+    "docentes_asignaturas",
+    Base.metadata,
+    Column("docente_id", UUID(as_uuid=True), ForeignKey("docentes.id"), primary_key=True),
+    Column("asignatura_id", UUID(as_uuid=True), ForeignKey("asignaturas.id"), primary_key=True),
+)
 
 # Modelo Docentes
 class Docente(Base):
@@ -31,6 +38,7 @@ class Docente(Base):
 
     disponibilidad = relationship("Disponibilidad", back_populates="docente")
     horarios = relationship("Horario", back_populates="docente")
+    asignaturas = relationship("Asignatura", secondary=docentes_asignaturas, back_populates="docentes")
 
 # Modelo Periodos
 class Periodo(Base):
@@ -63,14 +71,13 @@ class Asignatura(Base):
     __tablename__ = "asignaturas"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    codigo = Column(Integer, nullable=False)
+    codigo = Column(String, nullable=False)
     nombre = Column(String, nullable=False)
     intensidad = Column(String)
     grupo = Column(String)
     cohorte = Column(String)
-    profesor = Column(String)
     aula = Column(String)
-    jordana = Column(String)
+    jornada = Column(String)
     cant_estudiantes = Column(Integer)
     semestre = Column(String)
     plan = Column(String)
@@ -78,6 +85,7 @@ class Asignatura(Base):
 
     programa = relationship("Programa", back_populates="asignaturas")
     horarios = relationship("Horario", back_populates="asignatura")
+    docentes = relationship("Docente", secondary=docentes_asignaturas, back_populates="asignaturas")
 
 
 # Tabla intermedia para la relación Many-to-Many
@@ -101,6 +109,7 @@ class Programa(Base):
     __tablename__ = "programas"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    codigo = Column(String, nullable=False)
     nombre = Column(String, nullable=False)
     asignaturas = relationship("Asignatura", back_populates="programa")
     sedes = relationship("Sede", secondary=sede_programa, back_populates="programas")
