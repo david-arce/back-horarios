@@ -1,4 +1,4 @@
-from pydantic import BaseModel, UUID4, Field
+from pydantic import BaseModel, UUID4, EmailStr
 from typing import List, Optional
 
 # Esquema para Disponibilidad
@@ -100,7 +100,7 @@ class AsignaturaBase(BaseModel):
     intensidad: Optional[str] = None
     grupo: Optional[str] = None
     cohorte: Optional[str] = None
-    aula: Optional[str] = None
+    tipo_aula: Optional[str] = None
     jornada: Optional[str] = None
     cant_estudiantes: Optional[int] = None
     semestre: Optional[str] = None
@@ -116,13 +116,13 @@ class AsignaturaUpdate(BaseModel):
     intensidad: str | None = None
     grupo: str | None = None
     cohorte: str | None = None
-    aula: str | None = None
+    tipo_aula: str | None = None
     jornada: str | None = None
     cant_estudiantes: int | None = None
     semestre: str | None = None
     plan: str | None = None
     programa_id: UUID4 | None = None
-    
+    docentes: List[UUID4] = []
 
 class AsignaturaOut(AsignaturaBase):
     id: UUID4
@@ -168,3 +168,47 @@ class ProgramaOut(ProgramaBase):
 
 SedeOut.model_rebuild() # resolver referencia circular
 ProgramaOut.model_rebuild()
+
+# esquema para usuarios
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+    
+class UserCreate(UserBase):
+    hashed_password: str
+    
+class UserOut(BaseModel):
+    id: int
+    is_active: bool
+
+    class Config:
+        orm_mode = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+# esquema para aulas
+class AulaBase(BaseModel):
+    nombre: str
+    capacidad: int
+    tipo: str
+    sede_id: UUID4 | None = None
+
+class AulaCreate(AulaBase):
+    pass
+
+class AulaUpdate(BaseModel):
+    nombre: str | None = None
+    capacidad: int | None = None
+    tipo: str | None = None
+    sede_id: UUID4 | None = None
+
+class AulaOut(AulaBase):
+    id: UUID4
+
+    class Config:
+        from_attributes = True

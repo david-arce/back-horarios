@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Table
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from database import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -76,7 +76,7 @@ class Asignatura(Base):
     intensidad = Column(String)
     grupo = Column(String)
     cohorte = Column(String)
-    aula = Column(String)
+    tipo_aula = Column(String)
     jornada = Column(String)
     cant_estudiantes = Column(Integer)
     semestre = Column(String)
@@ -103,6 +103,7 @@ class Sede (Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String)
     programas = relationship("Programa", secondary=sede_programa, back_populates="sedes")
+    aulas = relationship("Aula", back_populates="sede")
 
 # Modelo Programas
 class Programa(Base):
@@ -113,3 +114,22 @@ class Programa(Base):
     nombre = Column(String, nullable=False)
     asignaturas = relationship("Asignatura", back_populates="programa")
     sedes = relationship("Sede", secondary=sede_programa, back_populates="programas")
+    
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+
+class Aula(Base):
+    __tablename__ = "aulas"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nombre = Column(String, nullable=False)
+    capacidad = Column(Integer, nullable=False)
+    tipo = Column(String, nullable=False) 
+    sede_id = Column(UUID(as_uuid=True), ForeignKey("sedes.id"), nullable=True)
+    
+    sede = relationship("Sede", back_populates="aulas") 
