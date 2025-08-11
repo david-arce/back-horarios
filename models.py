@@ -122,6 +122,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    user_type = Column(String, nullable=False)
 
 class Aula(Base):
     __tablename__ = "aulas"

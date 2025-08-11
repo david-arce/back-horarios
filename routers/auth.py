@@ -8,7 +8,7 @@ from security import verify_password, create_access_token
 from typing import Annotated
 from datetime import timedelta
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 360
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=schemas.UserOut)
@@ -40,6 +40,6 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "user_type": user.user_type}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")

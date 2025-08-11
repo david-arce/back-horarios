@@ -173,9 +173,10 @@ ProgramaOut.model_rebuild()
 class UserBase(BaseModel):
     username: str
     email: EmailStr
+    user_type: str
     
 class UserCreate(UserBase):
-    hashed_password: str
+    password: str
     
 class UserOut(BaseModel):
     id: int
